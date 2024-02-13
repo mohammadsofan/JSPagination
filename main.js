@@ -1,8 +1,13 @@
 async function getData(limit, page) {
     const skip = limit * (page - 1);
-    const resopnse = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`);
-    const data = await resopnse.json();
-    return data;
+    try{
+    const resopnse = await axios.get(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`);
+    return resopnse.data;
+
+    }
+    catch(error){
+        window.location.href="./error404.html";
+    }
 }
 
 async function displayData(limit, page = 1) {
@@ -11,11 +16,11 @@ async function displayData(limit, page = 1) {
     const total = data.total;
     const pagination = document.querySelector('nav ul.pagination');
     pagination.innerHTML = `<li class="page-item"><a class="page-link" href="#" onclick='displayData(${limit},${page - 1})'>Previous</a></li>`;
-    for (let i = 1; i <= total / limit; i++) {
+    for (let i = 1; i <= Math.ceil(total / limit); i++) {
         pagination.innerHTML += `
         <li class="page-item"><a class="page-link" href="#" onclick='displayData(${limit},${i})'>${i}</a></li>
         `;
-        if (i == 1 || i == (total / limit) - 1) {
+        if (i == 1 || i == Math.ceil(total / limit) - 1) {
             pagination.innerHTML += `<li class="page-item dots" style='display:none'><a class="page-link" href="#"  >...</a></li>`;
 
         }
@@ -34,7 +39,7 @@ async function displayData(limit, page = 1) {
         document.querySelector('nav .pagination li:first-child').classList.add('disabled');
 
     }
-    else if (page == total / limit) {
+    else if (page == Math.ceil(total / limit)) {
         document.querySelector('nav .pagination li:last-child').classList.add('disabled');
     }
     else {
@@ -43,7 +48,7 @@ async function displayData(limit, page = 1) {
     }
 
     //hide pagination items when totalPages greater than 10 and display the dots items
-    if (total / limit > 10) {
+    if (Math.ceil(total / limit) > 10) {
         const items = document.querySelectorAll('.page-item');
         for (let i = 2; i < items.length - 2; i++) {
             if (i - 1 != page && i - 1 != page - 1 && i - 1 != page + 1) {
@@ -64,8 +69,8 @@ async function displayData(limit, page = 1) {
     if (page == 1) {
         document.querySelector(`nav .pagination li:nth-child(2) a`).classList.add('bg-warning')
     }
-    else if (page == total / limit) {
-        document.querySelector(`nav .pagination li:nth-child(${(total / limit) + 3}) a`).classList.add('bg-warning')
+    else if (page == Math.ceil(total / limit)) {
+        document.querySelector(`nav .pagination li:nth-child(${Math.ceil(total / limit) + 3}) a`).classList.add('bg-warning')
     }
     else {
         document.querySelector(`nav .pagination li:nth-child(${page + 2}) a`).classList.add('bg-warning')
@@ -74,4 +79,4 @@ async function displayData(limit, page = 1) {
     document.querySelector('.products .row').innerHTML = result;
 }
 
-displayData(5);
+displayData(12);
